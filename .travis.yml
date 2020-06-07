@@ -128,85 +128,7 @@ matrix:
   fast_finish: true
   include:
 
-    - name: "multipass k3s part2 Python 3.7 on bionic" #OK
-      os: linux
-      dist: bionic
-      arch: amd64
-      addons:
-        snaps:
-          - name: multipass
-            confinement: classic # or devmode
-            channel: latest/stable # will be passed to --channel flag
-          # - name: kubectl
-          #   confinement: classic # or devmode
-          #   channel: latest/stable # will be passed to --channel flag
-      language: python
-      python: 3.7
-      before_install:
-        - pip3 install virtualenv
-        - virtualenv -p $(which python3) ~venvpy3
-        - source ~venvpy3/bin/activate
-      <<: *fleet_install_tasks
-      <<: *fleet_script_tasks
-      script:
-        - source config/k3s-multipass-cluster.bash --version v1.17.2+k3s1 --no-deploy dashboard --no-deploy weavescope --no-deploy prometheus
-        - source config/k3s-multipass-cluster.bash -h
-      after_success:
-        - deactivate
-
-
-    - name: "multipass k3s part3 Python 3.7 on bionic" #OK
-      os: linux
-      dist: bionic
-      arch: amd64
-      addons:
-        snaps:
-          - name: multipass
-            confinement: classic # or devmode
-            channel: latest/stable # will be passed to --channel flag
-          # - name: kubectl
-          #   confinement: classic # or devmode
-          #   channel: latest/stable # will be passed to --channel flag
-      language: python
-      python: 3.7
-      before_install:
-        - pip3 install virtualenv
-        - virtualenv -p $(which python3) ~venvpy3
-        - source ~venvpy3/bin/activate
-      <<: *fleet_install_tasks
-      <<: *fleet_script_tasks
-      # <<: *fleet_script_ubuntu_homebrew_tasks
-      script:
-        # - cat $HOME/.ssh/id_rsa.pub
-        - sudo multipass launch --name node1
-        - sudo multipass exec node1 -- sudo sh -c "curl -sfL https://get.k3s.io | sh -"
-        - TOKEN=`sudo multipass exec node1 -- sudo cat /var/lib/rancher/k3s/server/node-token`
-        - echo $TOKEN
-        - IP=`sudo multipass list --format csv | grep "^node1" | cut -d, -f3`
-        - echo $IP
-        - COUNT=7 &&  echo $COUNT
-        - |
-          for i in `seq 2 $COUNT`
-          do
-              sudo multipass launch --name node$i | tee /dev/null
-              sudo multipass exec node$i -- sudo sh -c "curl -sfL https://get.k3s.io | K3S_URL=https://$IP:6443 K3S_TOKEN=$TOKEN sh -"
-          done
-        - sleep 10
-        - sudo multipass exec node1 sudo kubectl get nodes
-        #
-        - KUBECONFIG=k3s.yaml
-        - NODES=$(echo node{2..4})
-        - |
-          for NODE in ${NODES}; do
-          multipass exec ${NODE} -- bash -c 'sudo systemctl enable iscsid && sudo systemctl start iscsid'
-          done
-
-      after_success:
-        - deactivate
-
-
-
-    - name: "multipass k3s part1 Python 3.7 on bionic" #OK
+    - name: "multipass k3s part1 Python 3.7 on bionic amd64" #OK
       os: linux
       dist: bionic
       arch: amd64
@@ -247,233 +169,52 @@ matrix:
       after_success:
         - deactivate
 
-    # - name: "multipass k3sup  k3s openfaas Python 3.7 on bionic" #OK
-    #   os: linux
-    #   dist: bionic
-    #   arch: amd64
-    #   addons:
-    #     snaps:
-    #       - name: multipass
-    #         confinement: classic # or devmode
-    #         channel: latest/stable # will be passed to --channel flag
-    #       # - name: kubectl
-    #       #   confinement: classic # or devmode
-    #       #   channel: latest/stable # will be passed to --channel flag
-    #   language: python
-    #   python: 3.7
-    #   before_install:
-    #     - pip3 install virtualenv
-    #     - virtualenv -p $(which python3) ~venvpy3
-    #     - source ~venvpy3/bin/activate
-    #   <<: *fleet_install_tasks
-    #   <<: *fleet_script_tasks
-    #   # <<: *fleet_script_ubuntu_homebrew_tasks
-    #   script:
-    #     # - cat $HOME/.ssh/id_rsa.pub
-    #     - curl -SLsf https://get.k3sup.dev | sudo sh
-    #     - sudo multipass launch ubuntu --name k3s-1 --cloud-init=config/cloud-init-openfaas.yaml
-    #     - sudo multipass info k3s-1
-    #     - IP=`sudo multipass list --format csv | grep "^node1" | cut -d, -f3`
-    #     - echo $IP
-    #     # - sudo k3sup install --user ubuntu --ip $IP --skip-install
-    #     # - ssh ubuntu@$IP cat post-install.sh
-    #   after_success:
-    #     - deactivate
-
-
-    # - name: "multipass k3s part2 Python 3.7 on bionic" #sudo: kubeadm: command not found
-    #   os: linux
-    #   dist: bionic
-    #   arch: amd64
-    #   addons:
-    #     snaps:
-    #       - name: multipass
-    #         confinement: classic # or devmode
-    #         channel: latest/stable # will be passed to --channel flag
-    #       # - name: kubectl
-    #       #   confinement: classic # or devmode
-    #       #   channel: latest/stable # will be passed to --channel flag
-    #   language: python
-    #   python: 3.7
-    #   before_install:
-    #     - pip3 install virtualenv
-    #     - virtualenv -p $(which python3) ~venvpy3
-    #     - source ~venvpy3/bin/activate
-    #   <<: *fleet_install_tasks
-    #   <<: *fleet_script_tasks
-    #   script:
-    #     # - cat $HOME/.ssh/id_rsa.pub
-    #     # booting master node
-    #     - sudo multipass launch -c 2 -m 2048M --name node1
-    #     - sudo multipass copy-files config/bootstrap.sh node1:/tmp/
-    #     - sudo multipass copy-files config/master.sh node1:/tmp/
-    #     # master node IP
-    #     - IP=`multipass list --format csv | grep "^node1" | cut -d, -f3`
-    #     - sudo multipass exec node1 -- sudo kubeadm init --apiserver-advertise-address=$IP --kubernetes-version stable-1.16
-    #     - multipass exec node1 sh /tmp/master.sh
-    #     - TOKEN=`multipass exec node1 sudo kubeadm token list|tail -n1|cut -d " " -f1`
-    #     - COUNT=5
-    #     - |
-    #       for i in `seq 2 $COUNT`
-    #       do
-    #           sudo multipass launch -c 2 -m 1536M --name node$i
-    #           sudo multipass copy-files config/bootstrap.sh node$i:/tmp/
-    #           sudo multipass exec node$i sudo sh /tmp/bootstrap.sh
-    #           sudo  multipass exec node$i -- sudo kubeadm join $IP:6443 --token $TOKEN --discovery-token-unsafe-skip-ca-verification
-    #       done
-    #     - sleep 10
-    #     - sudo multipass exec node1 sudo kubectl get nodes
-    #   after_success:
-    #     - deactivate
-
-    - name: "brew cask multipass k3s Python 3.7 on bionic" #OK
-      os: linux
-      dist: bionic
-      arch: amd64
-      addons:
-        snaps:
-          - name: multipass
-            confinement: classic # or devmode
-            channel: latest/stable # will be passed to --channel flag
-          # - name: kubectl
-          #   confinement: classic # or devmode
-          #   channel: latest/stable # will be passed to --channel flag
-      language: python
-      python: 3.7
-      before_install:
-        - pip3 install virtualenv
-        - virtualenv -p $(which python3) ~venvpy3
-        - source ~venvpy3/bin/activate
-      <<: *fleet_install_tasks
-      <<: *fleet_script_tasks
-      # <<: *fleet_script_ubuntu_homebrew_tasks
-      script:
-        # # Install Homebrew
-        # - sudo apt-get install -qqy build-essential curl file git
-        # - /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-        # - test -d ~/.linuxbrew && eval $(~/.linuxbrew/bin/brew shellenv)
-        # - test -d /home/linuxbrew/.linuxbrew && eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
-        # # - test -r ~/.bash_profile && echo "eval" ($(brew --prefix)/bin/brew shellenv)" >>~/.bash_profile
-        # - echo "eval $($(brew --prefix)/bin/brew shellenv)" >>~/.profile
-        # - brew install hello
-        # # Install Homebrew
-        # - brew cask install multipass
-        - multipass version
-        - sudo snap install kubectl --classic
-        - kubectl version –client
-        - sudo multipass launch --name k3s --cpus 4 --mem 4g --disk 20g
-        - sudo multipass info k3s
-        #Install a single-node Kubernetes cluster on the VM with k3s
-        - sudo multipass exec k3s -- bash -c "curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE="644" sh -"
-        - sudo multipass info k3s
-        - K3S_IP=$(multipass info k3s | grep IPv4 | awk '{print $2}')
-        - echo $K3S_IP
-      after_success:
-        - deactivate
 
 
 # # #============================================================================ multiarch linux ============================================================================
 
-    # #https://multipass.run/docs/launch-command
-    # - name: "multipass k3sup  Python 3.7 on bionic arm64"
-    #   os: linux
-    #   arch: arm64
-    #   # dist: xenial #Cannot check BIOS for determining KVM extensions support,Unable to load KVM support. Please ensure KVM is installed on your machine.
-    #   dist: bionic
-    #   addons:
-    #     snaps:
-    #       - name: multipass
-    #         confinement: classic # or devmode
-    #         channel: latest/beta # will be passed to --channel flag
-    #       - name: kubectl
-    #         confinement: classic # or devmode
-    #         channel: latest/stable # will be passed to --channel flag
-    #       - name: microk8s
-    #         confinement: classic # or devmode
-    #         channel: latest/stable # will be passed to --channel flag
-    #   language: python
-    #   python: 3.7
-    #   # env:
-    #     # - VM_NAME="VM01"
-    #     # - CPU="1"
-    #     # - MEMORY="4G"
-    #     # - DISK="5G"
-    #     # - CLOUD_INIT_FILE="config/cloud-init-jenkins.yaml"
-    #     # - VM_IMAGE="20.04"
-    #   before_install:
-    #     - pip3 install virtualenv
-    #     - virtualenv -p $(which python3) ~venvpy3
-    #     - source ~venvpy3/bin/activate
-    #     # - egrep -c '(vmx|svm)' /proc/cpuinfo | echo "virtualization is  supported" | echo "virtualization is not supported"
-    #     # - sudo apt-get install -qqy cpu-checker #kvm-ok
-    #     # - sudo kvm-ok #check whether the KVM is installed
-    #     # - sudo apt-get install -qqy qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
-    #   <<: *fleet_install_tasks
-    #   <<: *fleet_script_tasks
-    #   # <<: *fleet_script_multipass_cloudinit_jenkins_tasks
-    #   # <<: *fleet_script_ubuntu_homebrew_tasks
-    #   script:
-    #     - multipass version
-    #     - curl -SLsf https://get.k3sup.dev | sudo sh
-    #     - SERVER_IP="192.168.40.20"
-    #     - sudo k3sup install --ip $SERVER_IP --user pi
-    #     - AGENT_IP="192.168.40.20"
-    #     - sudo k3sup join --ip $AGENT_IP --server-ip $SERVER_IP --user pi
-    #     - sudo k3sup app install openfaas [--load-balancer] [--basic-auth]
-    #   after_success:
-    #     - deactivate
-
-
-    #https://multipass.run/docs/launch-command
-    - name: "multipass k3s  Python 3.7 on bionic arm64"
+    - name: "multipass k3s part1 Python 3.7 on bionic arm64" #OK
       os: linux
-      arch: arm64
-      # dist: xenial #Cannot check BIOS for determining KVM extensions support,Unable to load KVM support. Please ensure KVM is installed on your machine.
       dist: bionic
+      arch: arm64
       addons:
         snaps:
           - name: multipass
             confinement: classic # or devmode
-            channel: latest/beta # will be passed to --channel flag
-          - name: kubectl
-            confinement: classic # or devmode
             channel: latest/stable # will be passed to --channel flag
-          - name: microk8s
-            confinement: classic # or devmode
-            channel: latest/stable # will be passed to --channel flag
+          # - name: kubectl
+          #   confinement: classic # or devmode
+          #   channel: latest/stable # will be passed to --channel flag
       language: python
       python: 3.7
-      # env:
-        # - VM_NAME="VM01"
-        # - CPU="1"
-        # - MEMORY="4G"
-        # - DISK="5G"
-        # - CLOUD_INIT_FILE="config/cloud-init-jenkins.yaml"
-        # - VM_IMAGE="20.04"
       before_install:
         - pip3 install virtualenv
         - virtualenv -p $(which python3) ~venvpy3
         - source ~venvpy3/bin/activate
-        # - egrep -c '(vmx|svm)' /proc/cpuinfo | echo "virtualization is  supported" | echo "virtualization is not supported"
-        # - sudo apt-get install -qqy cpu-checker #kvm-ok
-        # - sudo kvm-ok #check whether the KVM is installed
-        # - sudo apt-get install -qqy qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
       <<: *fleet_install_tasks
       <<: *fleet_script_tasks
-      <<: *fleet_script_multipass_cloudinit_jenkins_tasks
       # <<: *fleet_script_ubuntu_homebrew_tasks
       script:
-        - multipass version
-        - kubectl version –client
-        - sudo multipass launch --name k3s --cpus 4 --mem 4g --disk 20g
-        - sudo multipass info k3s
-        #Install a single-node Kubernetes cluster on the VM with k3s
-        - sudo multipass exec k3s -- bash -c "curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE="644" sh -"
-        - multipass info k3s
-        - K3S_IP=$(multipass info k3s | grep IPv4 | awk '{print $2}')
-        - echo $K3S_IP
+        # - cat $HOME/.ssh/id_rsa.pub
+        - sudo multipass launch --name node1
+        - sudo multipass exec node1 -- sudo sh -c "curl -sfL https://get.k3s.io | sh -"
+        - TOKEN=`sudo multipass exec node1 -- sudo cat /var/lib/rancher/k3s/server/node-token`
+        - echo $TOKEN
+        - IP=`sudo multipass list --format csv | grep "^node1" | cut -d, -f3`
+        - echo $IP
+        - COUNT=7 &&  echo $COUNT
+        - |
+          for i in `seq 2 $COUNT`
+          do
+              sudo multipass launch --name node$i | tee /dev/null
+              sudo multipass exec node$i -- sudo sh -c "curl -sfL https://get.k3s.io | K3S_URL=https://$IP:6443 K3S_TOKEN=$TOKEN sh -"
+          done
+        - sleep 10
+        - sudo multipass exec node1 sudo kubectl get nodes
       after_success:
         - deactivate
+
+
 
 
     # - name: "multipass microk8s  beta Python 3.7 on bionic arm64"
