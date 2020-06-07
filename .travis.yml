@@ -19,7 +19,7 @@ matrix:
   fast_finish: true
   include:
 
-    - name: "multipass k3s part1 Python 3.7 on bionic amd64" #OK
+    - name: "multipass k3s Python 3.7 on bionic amd64" #OK
       os: linux
       dist: bionic
       arch: amd64
@@ -59,7 +59,7 @@ matrix:
 
 # # #============================================================================ multiarch linux ============================================================================
 
-    - name: "multipass beta channel k3s part1 Python 3.7 on bionic arm64" #OK
+    - name: "multipass beta channel k3s Python 3.7 on bionic arm64" #OK
       os: linux
       dist: bionic
       arch: arm64
@@ -77,21 +77,10 @@ matrix:
       <<: *fleet_install_tasks
       <<: *fleet_script_tasks
       script:
-        - sudo multipass launch --name node1
-        - sudo multipass exec node1 -- sudo sh -c "curl -sfL https://get.k3s.io | sh -"
-        - TOKEN=`sudo multipass exec node1 -- sudo cat /var/lib/rancher/k3s/server/node-token`
-        - echo $TOKEN
-        - IP=`sudo multipass list --format csv | grep "^node1" | cut -d, -f3`
-        - echo $IP
-        - COUNT=7 &&  echo $COUNT
-        - |
-          for i in `seq 2 $COUNT`
-          do
-              sudo multipass launch --name node$i | tee /dev/null
-              sudo multipass exec node$i -- sudo sh -c "curl -sfL https://get.k3s.io | K3S_URL=https://$IP:6443 K3S_TOKEN=$TOKEN sh -"
-          done
-        - sleep 10
-        - sudo multipass exec node1 sudo kubectl get nodes
+        - egrep -c '(vmx|svm)' /proc/cpuinfo | echo "virtualization is  supported" | echo "virtualization is not supported"
+        - sudo apt-get install -qqy cpu-checker #kvm-ok
+        - sudo kvm-ok #check whether the KVM is installed
+        - sudo apt-get install -qqy qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
       after_success:
         - deactivate
 
