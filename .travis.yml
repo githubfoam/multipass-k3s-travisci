@@ -78,9 +78,9 @@ matrix:
       <<: *fleet_script_tasks
       script:
         - egrep -c '(vmx|svm)' /proc/cpuinfo | echo "virtualization is  supported" | echo "virtualization is not supported"
-        - sudo apt-get install -qqy cpu-checker #kvm-ok
-        - sudo kvm-ok #check whether the KVM is installed
-        - sudo apt-get install -qqy qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
+        # - sudo apt-get install -qqy cpu-checker #kvm-ok
+        # - sudo kvm-ok #check whether the KVM is installed
+        # - sudo apt-get install -qqy qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
       after_success:
         - deactivate
 

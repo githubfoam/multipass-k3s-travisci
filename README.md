@@ -1,6 +1,9 @@
 # multipass-k3s-travisci
 multipass k3s kubernetes
 
+Travis (.com)  branch:
+[![Build Status](https://travis-ci.com/githubfoam/multipass-k3s-travisci.svg?branch=master)](https://travis-ci.com/githubfoam/multipass-k3s-travisci)  
+
 
 ~~~~
 Using libvirt in Multipass
