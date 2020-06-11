@@ -175,7 +175,8 @@ matrix:
 
     - name: "multipass k3s part1 Python 3.7 on bionic arm64" #OK
       os: linux
-      dist: bionic
+      # dist: bionic #Unable to load KVM support. Please ensure KVM is installed on your machine.
+      dist: xenial #Unable to load KVM support. Please ensure KVM is installed on your machine.
       arch: arm64
       addons:
         snaps:
