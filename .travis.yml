@@ -166,6 +166,7 @@ matrix:
           done
         - sleep 10
         - sudo multipass exec node1 sudo kubectl get nodes
+        - sudo multipass exec node1 sudo kubectl get pods --all-namespaces # verify Traefik installed by default
       after_success:
         - deactivate
 
@@ -175,8 +176,7 @@ matrix:
 
     - name: "multipass k3s part1 Python 3.7 on bionic arm64" #OK
       os: linux
-      # dist: bionic #Unable to load KVM support. Please ensure KVM is installed on your machine.
-      dist: xenial #Unable to load KVM support. Please ensure KVM is installed on your machine.
+      dist: bionic #Unable to load KVM support. Please ensure KVM is installed on your machine.
       arch: arm64
       addons:
         snaps:
@@ -197,6 +197,8 @@ matrix:
       # <<: *fleet_script_ubuntu_homebrew_tasks
       script:
         # - cat $HOME/.ssh/id_rsa.pub
+        # https://linuxconfig.org/install-and-set-up-kvm-on-ubuntu-18-04-bionic-beaver-linux
+        - sudo apt-get -qqy install qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils virt-manager
         - sudo multipass launch --name node1
         - sudo multipass exec node1 -- sudo sh -c "curl -sfL https://get.k3s.io | sh -"
         - TOKEN=`sudo multipass exec node1 -- sudo cat /var/lib/rancher/k3s/server/node-token`
