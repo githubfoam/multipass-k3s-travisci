@@ -5,6 +5,27 @@ Travis (.com)  branch:
 [![Build Status](https://travis-ci.com/githubfoam/multipass-k3s-travisci.svg?branch=master)](https://travis-ci.com/githubfoam/multipass-k3s-travisci)  
 
 
+AMD64 (one master + 6 nodes)
+~~~~
+$ sudo multipass exec node1 sudo kubectl get nodes
+
+NAME    STATUS   ROLES    AGE     VERSION
+
+node1   Ready    master   5m52s   v1.18.3+k3s1
+
+node2   Ready    <none>   4m45s   v1.18.3+k3s1
+
+node3   Ready    <none>   3m50s   v1.18.3+k3s1
+
+node4   Ready    <none>   2m56s   v1.18.3+k3s1
+
+node5   Ready    <none>   2m3s    v1.18.3+k3s1
+
+node6   Ready    <none>   64s     v1.18.3+k3s1
+
+node7   Ready    <none>   6s      v1.18.3+k3s1
+~~~~
+
 ~~~~
 Using libvirt in Multipass
 https://multipass.run/docs/using-libvirt
