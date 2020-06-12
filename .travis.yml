@@ -10,6 +10,12 @@ notifications:
     on_failure: always
 
 
+fleet_script_katacoda_tasks : &fleet_script_katacoda_tasks
+      script:
+        - curl -LO https://github.com/rancher/k3s/releases/download/v0.1.0/k3s
+        - sudo chmod +x k3s
+        - sudo mv k3s /usr/local/bin/
+        - sudo k3s server
 
 fleet_script_multipass_cloudinit_jenkins_tasks : &fleet_script_multipass_cloudinit_jenkins_tasks
       script:
@@ -128,7 +134,7 @@ matrix:
   fast_finish: true
   include:
 
-    - name: "multipass k3s part1 Python 3.7 on bionic amd64" #OK
+    - name: "katacoda k3s  Python 3.7 on bionic amd64" #OK
       os: linux
       dist: bionic
       arch: amd64
@@ -137,9 +143,6 @@ matrix:
           - name: multipass
             confinement: classic # or devmode
             channel: latest/stable # will be passed to --channel flag
-          # - name: kubectl
-          #   confinement: classic # or devmode
-          #   channel: latest/stable # will be passed to --channel flag
       language: python
       python: 3.7
       before_install:
@@ -148,131 +151,157 @@ matrix:
         - source ~venvpy3/bin/activate
       <<: *fleet_install_tasks
       <<: *fleet_script_tasks
-      # <<: *fleet_script_ubuntu_homebrew_tasks
+      <<: *fleet_script_katacoda_tasks
       script:
-        # - cat $HOME/.ssh/id_rsa.pub
-        - 'sudo multipass launch --name node1' #must be named as node1
-        - sudo multipass exec node1 -- sudo sh -c "curl -sfL https://get.k3s.io | sh -"
-        - TOKEN=`sudo multipass exec node1 -- sudo cat /var/lib/rancher/k3s/server/node-token`
-        - echo $TOKEN
-        - IP=`sudo multipass list --format csv | grep "^node1" | cut -d, -f3`
-        - echo $IP
-        - COUNT=3 &&  echo $COUNT
-        - |
-          for i in `seq 2 $COUNT`
-          do
-              sudo multipass launch --name node$i | tee /dev/null
-              sudo multipass exec node$i -- sudo sh -c "curl -sfL https://get.k3s.io | K3S_URL=https://$IP:6443 K3S_TOKEN=$TOKEN sh -"
-          done
-        - sleep 10
-        - sudo multipass exec node1 sudo kubectl get nodes
-        # - sudo multipass exec node1 sudo kubectl get pods --all-namespaces # verify Traefik installed by default
-        #Deploying the Kubernetes Dashboard
-        #Access the cluster from PC remotely
-        # - sudo cat /etc/rancher/k3s/k3s.yaml
-        # Save the copied configuration as ~/.kube/config
-        # edit the file and change the line server: https://localhost:6443 server: https://k3smaster:6443
-        # chmod 600 ~/.kube/config   limit the file's read/write permissions
-        # - sudo mkdir ~/.kube #Make a directory for the config Copy this configuration information
-        # sudo apt update && sudo apt install -y apt-transport-https
-        # curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-        # echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | \
-        # sudo tee -a /etc/apt/sources.list.d/kubernetes.list
-        # sudo apt update && sudo apt install kubectl
-        # kubectl get nodes check out  cluster from PC
-        #Access the cluster from PC remotely
+        - k3s server --help
       after_success:
         - deactivate
+
+    # - name: "multipass k3s part1 Python 3.7 on bionic amd64" #OK
+    #   os: linux
+    #   dist: bionic
+    #   arch: amd64
+    #   addons:
+    #     snaps:
+    #       - name: multipass
+    #         confinement: classic # or devmode
+    #         channel: latest/stable # will be passed to --channel flag
+    #       # - name: kubectl
+    #       #   confinement: classic # or devmode
+    #       #   channel: latest/stable # will be passed to --channel flag
+    #   language: python
+    #   python: 3.7
+    #   before_install:
+    #     - pip3 install virtualenv
+    #     - virtualenv -p $(which python3) ~venvpy3
+    #     - source ~venvpy3/bin/activate
+    #   <<: *fleet_install_tasks
+    #   <<: *fleet_script_tasks
+    #   # <<: *fleet_script_ubuntu_homebrew_tasks
+    #   script:
+    #     # - cat $HOME/.ssh/id_rsa.pub
+    #     - 'sudo multipass launch --name node1' #must be named as node1
+    #     - sudo multipass exec node1 -- sudo sh -c "curl -sfL https://get.k3s.io | sh -"
+    #     - TOKEN=`sudo multipass exec node1 -- sudo cat /var/lib/rancher/k3s/server/node-token`
+    #     - echo $TOKEN
+    #     - IP=`sudo multipass list --format csv | grep "^node1" | cut -d, -f3`
+    #     - echo $IP
+    #     - COUNT=3 &&  echo $COUNT
+    #     - |
+    #       for i in `seq 2 $COUNT`
+    #       do
+    #           sudo multipass launch --name node$i | tee /dev/null
+    #           sudo multipass exec node$i -- sudo sh -c "curl -sfL https://get.k3s.io | K3S_URL=https://$IP:6443 K3S_TOKEN=$TOKEN sh -"
+    #       done
+    #     - sleep 10
+    #     - sudo multipass exec node1 sudo kubectl get nodes
+    #     # - sudo multipass exec node1 sudo kubectl get pods --all-namespaces # verify Traefik installed by default
+    #     #Deploying the Kubernetes Dashboard
+    #     #Access the cluster from PC remotely
+    #     # - sudo cat /etc/rancher/k3s/k3s.yaml
+    #     # Save the copied configuration as ~/.kube/config
+    #     # edit the file and change the line server: https://localhost:6443 server: https://k3smaster:6443
+    #     # chmod 600 ~/.kube/config   limit the file's read/write permissions
+    #     # - sudo mkdir ~/.kube #Make a directory for the config Copy this configuration information
+    #     # sudo apt update && sudo apt install -y apt-transport-https
+    #     # curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+    #     # echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | \
+    #     # sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+    #     # sudo apt update && sudo apt install kubectl
+    #     # kubectl get nodes check out  cluster from PC
+    #     #Access the cluster from PC remotely
+    #   after_success:
+    #     - deactivate
 
 
 
 # # #============================================================================ multiarch linux ============================================================================
-
-    - name: "multipass k3s part1 Python 3.7 on bionic arm64" #OK
-      os: linux
-      dist: bionic #Unable to load KVM support. Please ensure KVM is installed on your machine.
-      arch: arm64
-      addons:
-        snaps:
-          - name: multipass
-            confinement: classic # or devmode
-            channel: latest/beta # will be passed to --channel flag
-          # - name: kubectl
-          #   confinement: classic # or devmode
-          #   channel: latest/stable # will be passed to --channel flag
-      language: python
-      python: 3.7
-      before_install:
-        - pip3 install virtualenv
-        - virtualenv -p $(which python3) ~venvpy3
-        - source ~venvpy3/bin/activate
-      <<: *fleet_install_tasks
-      <<: *fleet_script_tasks
-      # <<: *fleet_script_ubuntu_homebrew_tasks
-      script:
-        # - cat $HOME/.ssh/id_rsa.pub
-        # https://linuxconfig.org/install-and-set-up-kvm-on-ubuntu-18-04-bionic-beaver-linux
-        - sudo apt-get -qqy install qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils virt-manager
-        - sudo multipass launch --name node1
-        - sudo multipass exec node1 -- sudo sh -c "curl -sfL https://get.k3s.io | sh -"
-        - TOKEN=`sudo multipass exec node1 -- sudo cat /var/lib/rancher/k3s/server/node-token`
-        - echo $TOKEN
-        - IP=`sudo multipass list --format csv | grep "^node1" | cut -d, -f3`
-        - echo $IP
-        - COUNT=3 &&  echo $COUNT
-        - |
-          for i in `seq 2 $COUNT`
-          do
-              sudo multipass launch --name node$i | tee /dev/null
-              sudo multipass exec node$i -- sudo sh -c "curl -sfL https://get.k3s.io | K3S_URL=https://$IP:6443 K3S_TOKEN=$TOKEN sh -"
-          done
-        - sleep 10
-        - sudo multipass exec node1 sudo kubectl get nodes
-      after_success:
-        - deactivate
-
-    - name: "multipass k3s part1 Python 3.7 on xenial arm64" #OK
-      os: linux
-      dist: bionic #Unable to load KVM support. Please ensure KVM is installed on your machine.
-      arch: xenial
-      addons:
-        snaps:
-          - name: multipass
-            confinement: classic # or devmode
-            channel: latest/beta # will be passed to --channel flag
-          # - name: kubectl
-          #   confinement: classic # or devmode
-          #   channel: latest/stable # will be passed to --channel flag
-      language: python
-      python: 3.7
-      before_install:
-        - pip3 install virtualenv
-        - virtualenv -p $(which python3) ~venvpy3
-        - source ~venvpy3/bin/activate
-      <<: *fleet_install_tasks
-      <<: *fleet_script_tasks
-      # <<: *fleet_script_ubuntu_homebrew_tasks
-      script:
-        # - cat $HOME/.ssh/id_rsa.pub
-        # https://linuxconfig.org/install-and-set-up-kvm-on-ubuntu-18-04-bionic-beaver-linux
-        - sudo apt-get -qqy install qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils virt-manager
-        - sudo multipass launch --name node1
-        - sudo multipass exec node1 -- sudo sh -c "curl -sfL https://get.k3s.io | sh -"
-        - TOKEN=`sudo multipass exec node1 -- sudo cat /var/lib/rancher/k3s/server/node-token`
-        - echo $TOKEN
-        - IP=`sudo multipass list --format csv | grep "^node1" | cut -d, -f3`
-        - echo $IP
-        - COUNT=3 &&  echo $COUNT
-        - |
-          for i in `seq 2 $COUNT`
-          do
-              sudo multipass launch --name node$i | tee /dev/null
-              sudo multipass exec node$i -- sudo sh -c "curl -sfL https://get.k3s.io | K3S_URL=https://$IP:6443 K3S_TOKEN=$TOKEN sh -"
-          done
-        - sleep 10
-        - sudo multipass exec node1 sudo kubectl get nodes
-      after_success:
-        - deactivate
+    #
+    # - name: "multipass k3s part1 Python 3.7 on bionic arm64" #OK
+    #   os: linux
+    #   dist: bionic #Unable to load KVM support. Please ensure KVM is installed on your machine.
+    #   arch: arm64
+    #   addons:
+    #     snaps:
+    #       - name: multipass
+    #         confinement: classic # or devmode
+    #         channel: latest/beta # will be passed to --channel flag
+    #       # - name: kubectl
+    #       #   confinement: classic # or devmode
+    #       #   channel: latest/stable # will be passed to --channel flag
+    #   language: python
+    #   python: 3.7
+    #   before_install:
+    #     - pip3 install virtualenv
+    #     - virtualenv -p $(which python3) ~venvpy3
+    #     - source ~venvpy3/bin/activate
+    #   <<: *fleet_install_tasks
+    #   <<: *fleet_script_tasks
+    #   # <<: *fleet_script_ubuntu_homebrew_tasks
+    #   script:
+    #     # - cat $HOME/.ssh/id_rsa.pub
+    #     # https://linuxconfig.org/install-and-set-up-kvm-on-ubuntu-18-04-bionic-beaver-linux
+    #     - sudo apt-get -qqy install qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils virt-manager
+    #     - sudo multipass launch --name node1
+    #     - sudo multipass exec node1 -- sudo sh -c "curl -sfL https://get.k3s.io | sh -"
+    #     - TOKEN=`sudo multipass exec node1 -- sudo cat /var/lib/rancher/k3s/server/node-token`
+    #     - echo $TOKEN
+    #     - IP=`sudo multipass list --format csv | grep "^node1" | cut -d, -f3`
+    #     - echo $IP
+    #     - COUNT=3 &&  echo $COUNT
+    #     - |
+    #       for i in `seq 2 $COUNT`
+    #       do
+    #           sudo multipass launch --name node$i | tee /dev/null
+    #           sudo multipass exec node$i -- sudo sh -c "curl -sfL https://get.k3s.io | K3S_URL=https://$IP:6443 K3S_TOKEN=$TOKEN sh -"
+    #       done
+    #     - sleep 10
+    #     - sudo multipass exec node1 sudo kubectl get nodes
+    #   after_success:
+    #     - deactivate
+    #
+    # - name: "multipass k3s part1 Python 3.7 on xenial arm64" #OK
+    #   os: linux
+    #   dist: xenial #Unable to load KVM support. Please ensure KVM is installed on your machine.
+    #   arch: arm64
+    #   addons:
+    #     snaps:
+    #       - name: multipass
+    #         confinement: classic # or devmode
+    #         channel: latest/beta # will be passed to --channel flag
+    #       # - name: kubectl
+    #       #   confinement: classic # or devmode
+    #       #   channel: latest/stable # will be passed to --channel flag
+    #   language: python
+    #   python: 3.7
+    #   before_install:
+    #     - pip3 install virtualenv
+    #     - virtualenv -p $(which python3) ~venvpy3
+    #     - source ~venvpy3/bin/activate
+    #   <<: *fleet_install_tasks
+    #   <<: *fleet_script_tasks
+    #   # <<: *fleet_script_ubuntu_homebrew_tasks
+    #   script:
+    #     # - cat $HOME/.ssh/id_rsa.pub
+    #     # https://linuxconfig.org/install-and-set-up-kvm-on-ubuntu-18-04-bionic-beaver-linux
+    #     - sudo apt-get -qqy install qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils virt-manager
+    #     - sudo multipass launch --name node1
+    #     - sudo multipass exec node1 -- sudo sh -c "curl -sfL https://get.k3s.io | sh -"
+    #     - TOKEN=`sudo multipass exec node1 -- sudo cat /var/lib/rancher/k3s/server/node-token`
+    #     - echo $TOKEN
+    #     - IP=`sudo multipass list --format csv | grep "^node1" | cut -d, -f3`
+    #     - echo $IP
+    #     - COUNT=3 &&  echo $COUNT
+    #     - |
+    #       for i in `seq 2 $COUNT`
+    #       do
+    #           sudo multipass launch --name node$i | tee /dev/null
+    #           sudo multipass exec node$i -- sudo sh -c "curl -sfL https://get.k3s.io | K3S_URL=https://$IP:6443 K3S_TOKEN=$TOKEN sh -"
+    #       done
+    #     - sleep 10
+    #     - sudo multipass exec node1 sudo kubectl get nodes
+    #   after_success:
+    #     - deactivate
 
 
 
