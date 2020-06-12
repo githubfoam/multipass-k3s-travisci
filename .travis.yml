@@ -152,8 +152,8 @@ matrix:
       <<: *fleet_install_tasks
       <<: *fleet_script_tasks
       <<: *fleet_script_katacoda_tasks
-      script:
-        - k3s server --help
+      # script:
+      #   - k3s server --help
       after_success:
         - deactivate
 
