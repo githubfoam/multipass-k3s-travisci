@@ -168,7 +168,9 @@ matrix:
         - sudo multipass exec node1 sudo kubectl get nodes
         - sudo multipass mount $HOME node1
         - sudo multipass mount $HOME node1:/tmp
+        - echo $HOME && ls -lai
         - sudo multipass info node1
+        - sudo multipass exec node1 bash /tmp/deploy-istio.sh
         # - sudo multipass exec node1 sudo kubectl get pods --all-namespaces # verify Traefik installed by default
         #Deploying the Kubernetes Dashboard
         #Access the cluster from PC remotely
