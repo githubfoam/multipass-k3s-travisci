@@ -173,10 +173,13 @@ matrix:
         - sudo multipass exec node1 -- sudo sh -c "kubectl get pods --all-namespaces" # verify Traefik installed by default
         - sudo multipass exec node1 -- sudo sh -c "kubectl get pods -n kube-system" # verify Traefik installed by default
         - sudo multipass exec node1 -- sudo sh -c "kubectl get nodes" # verify Traefik installed by default
-        - echo " ####################### openEBS ################################ "
+        - echo "=============================openEBS============================================================="
+        - echo $HOME && ls -lai
+        - sudo multipass transfer deploy-openesb.sh node1:deploy-openesb.sh
         - sudo multipass exec node1 -- sudo sh -c "./deploy-openesb.sh"
+        # - sudo multipass exec node1 -- sudo sh -c "./deploy-openesb.sh"
         # - sudo multipass exec node1 -- sudo sh -c "kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml"
-        - echo " ####################### openEBS ################################ "
+        - echo "=============================openEBS============================================================="
         #Deploying the Kubernetes Dashboard
         #Access the cluster from PC remotely
         # - sudo cat /etc/rancher/k3s/k3s.yaml
@@ -192,6 +195,7 @@ matrix:
         # kubectl get nodes check out  cluster from PC
         #Access the cluster from PC remotely
       after_success:
+        - sudo multipass purge #purge to remove all deleted instances completely
         - deactivate
 
     - name: "multipass k3s istio Python 3.7 on bionic amd64" #OK
