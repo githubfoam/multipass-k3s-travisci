@@ -244,7 +244,7 @@ matrix:
         - sudo multipass exec node1 -- sudo sh -c "kubectl get pods --all-namespaces" # verify Traefik installed by default
         - echo "=============================istio============================================================="
         - echo $HOME && ls -lai
-        - sudo multipass transfer deploy-istio.sh node1:deploy-openesb.sh
+        - sudo multipass transfer deploy-istio.sh node1:deploy-istio.sh
         - sudo multipass exec node1 -- sudo ls -lai
         - sudo multipass exec node1 -- sudo bash deploy-istio.sh #working
         # - sudo multipass exec node1 -- sudo sh -c "./deploy-istio.sh"
