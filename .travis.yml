@@ -128,7 +128,7 @@ matrix:
   fast_finish: true
   include:
 
-    - name: "multipass k3s part1 Python 3.7 on bionic amd64" #OK
+    - name: "multipass k3s Kubernetes Dashboard Python 3.7 on bionic amd64" #OK
       os: linux
       dist: bionic
       arch: amd64
@@ -170,8 +170,7 @@ matrix:
         - sudo multipass mount $HOME node1:/tmp
         - echo $HOME && ls -lai
         - sudo multipass info node1
-        - sudo multipass exec node1 bash /tmp/deploy-istio.sh
-        # - sudo multipass exec node1 sudo kubectl get pods --all-namespaces # verify Traefik installed by default
+        - sudo multipass exec node1 sudo kubectl get pods --all-namespaces # verify Traefik installed by default
         #Deploying the Kubernetes Dashboard
         #Access the cluster from PC remotely
         # - sudo cat /etc/rancher/k3s/k3s.yaml
@@ -186,6 +185,54 @@ matrix:
         # sudo apt update && sudo apt install kubectl
         # kubectl get nodes check out  cluster from PC
         #Access the cluster from PC remotely
+      after_success:
+        - deactivate
+
+    - name: "multipass k3s istio Python 3.7 on bionic amd64" #OK
+      os: linux
+      dist: bionic
+      arch: amd64
+      addons:
+        snaps:
+          - name: multipass
+            confinement: classic # or devmode
+            channel: latest/stable # will be passed to --channel flag
+          # - name: kubectl
+          #   confinement: classic # or devmode
+          #   channel: latest/stable # will be passed to --channel flag
+      language: python
+      python: 3.7
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+      <<: *fleet_install_tasks
+      <<: *fleet_script_tasks
+      # <<: *fleet_script_ubuntu_homebrew_tasks
+      script:
+        # - cat $HOME/.ssh/id_rsa.pub
+        - 'sudo multipass launch --name node1' #must be named as node1
+        - sudo multipass exec node1 -- sudo sh -c "curl -sfL https://get.k3s.io | sh -"
+        - TOKEN=`sudo multipass exec node1 -- sudo cat /var/lib/rancher/k3s/server/node-token`
+        - echo $TOKEN
+        - IP=`sudo multipass list --format csv | grep "^node1" | cut -d, -f3`
+        - echo $IP
+        - COUNT=3 &&  echo $COUNT
+        - |
+          for i in `seq 2 $COUNT`
+          do
+              sudo multipass launch --name node$i | tee /dev/null
+              sudo multipass exec node$i -- sudo sh -c "curl -sfL https://get.k3s.io | K3S_URL=https://$IP:6443 K3S_TOKEN=$TOKEN sh -"
+          done
+        - sleep 10
+        - sudo multipass exec node1 sudo kubectl get nodes
+        - sudo multipass mount $HOME node1
+        - sudo multipass mount $HOME node1:/tmp
+        - echo $HOME && ls -lai
+        - sudo multipass info node1
+        - sudo multipass exec node1 sudo kubectl get pods --all-namespaces # verify Traefik installed by default
+        # - sudo multipass exec node1 bash /tmp/deploy-istio.sh
+        - sudo multipass exec node1 -- sudo sh -c "curl -s -L https://git.io/getLatestIstio | ISTIO_VERSION=1.0.0 sh -"
       after_success:
         - deactivate
 
