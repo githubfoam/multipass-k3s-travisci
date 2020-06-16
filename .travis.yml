@@ -176,7 +176,8 @@ matrix:
         - echo "=============================openEBS============================================================="
         - echo $HOME && ls -lai
         - sudo multipass transfer deploy-openesb.sh node1:deploy-openesb.sh
-        - sudo multipass exec node1 -- sudo sh -c "./deploy-openesb.sh"
+        - sudo multipass exec node1 -- sudo ls -lai
+        - sudo multipass exec node1 -- sudo bash deploy-openesb.sh
         # - sudo multipass exec node1 -- sudo sh -c "./deploy-openesb.sh"
         # - sudo multipass exec node1 -- sudo sh -c "kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml"
         - echo "=============================openEBS============================================================="
@@ -241,8 +242,17 @@ matrix:
         - echo $HOME && ls -lai
         - sudo multipass info node1
         - sudo multipass exec node1 -- sudo sh -c "kubectl get pods --all-namespaces" # verify Traefik installed by default
+        - echo "=============================istio============================================================="
+        - echo $HOME && ls -lai
+        - sudo multipass transfer deploy-openesb.sh node1:deploy-openesb.sh
+        - sudo multipass exec node1 -- sudo ls -lai
+        - sudo multipass exec node1 -- sudo bash deploy-istio.sh
+        - sudo multipass exec node1 -- ./deploy-istio.sh
+        - sudo multipass exec node1 -- source deploy-istio.sh
+        - sudo multipass exec node1 -- bash deploy-istio.sh
         - sudo multipass exec node1 -- sudo sh -c "./deploy-istio.sh"
         # - sudo multipass exec node1 -- sudo sh -c "curl -s -L https://git.io/getLatestIstio | ISTIO_VERSION=1.0.0 sh -"
+        - echo "=============================istio============================================================="
       after_success:
         - deactivate
 
