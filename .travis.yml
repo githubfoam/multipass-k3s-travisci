@@ -128,7 +128,7 @@ matrix:
   fast_finish: true
   include:
 
-    - name: "multipass k3s Kubernetes Dashboard Python 3.7 on bionic amd64" #OK
+    - name: "multipass k3s openesb Python 3.7 on bionic amd64" #OK
       os: linux
       dist: bionic
       arch: amd64
@@ -171,6 +171,23 @@ matrix:
         - echo $HOME && ls -lai
         - sudo multipass info node1
         - sudo multipass exec node1 sudo kubectl get pods --all-namespaces # verify Traefik installed by default
+        ###################### #openEBS ################################
+        - sudo multipass exec node$i -- sudo sh -c "kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml"
+        # - sudo kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml #install OpenEBS
+        # - kubectl get service --all-namespaces # find a Service IP,list all services in all namespaces
+        # - kubectl get pods -n openebs -l openebs.io/component-name=openebs-localpv-provisioner #Observe localhost provisioner pod
+        # - kubectl get sc #Check the storage Class
+        # - |
+        #   echo "Waiting for local storage to be ready ..."
+        #   for i in {1..60}; do # Timeout after 5 minutes, 150x5=300 secs
+        #       if sudo kubectl get pods --namespace=local-path-storage | grep Running ; then
+        #         break
+        #       fi
+        #       sleep 5
+        #   done
+        # - sudo kubectl get pods --all-namespaces
+        # - sudo kubectl get pods --namespace=local-path-storage
+        ###################### #openEBS  ######################
         #Deploying the Kubernetes Dashboard
         #Access the cluster from PC remotely
         # - sudo cat /etc/rancher/k3s/k3s.yaml
