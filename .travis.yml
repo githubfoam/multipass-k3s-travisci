@@ -171,8 +171,11 @@ matrix:
         - echo $HOME && ls -lai
         - sudo multipass info node1
         - sudo multipass exec node1 -- sudo sh -c "kubectl get pods --all-namespaces" # verify Traefik installed by default
+        - sudo multipass exec node1 -- sudo sh -c "kubectl get pods -n kube-system" # verify Traefik installed by default
+        - sudo multipass exec node1 -- sudo sh -c "kubectl get nodes" # verify Traefik installed by default
         ###################### #openEBS ################################
-        # - sudo multipass exec node$i -- sudo sh -c "kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml"
+        - sudo multipass exec node$1 -- sudo sh -c "kubectl apply -f https://openebs.github.io/charts/1.11.0/openebs-operator.yaml"
+        # - sudo multipass exec node$1 -- sudo kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml
         # - sudo kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml #install OpenEBS
         # - kubectl get service --all-namespaces # find a Service IP,list all services in all namespaces
         # - kubectl get pods -n openebs -l openebs.io/component-name=openebs-localpv-provisioner #Observe localhost provisioner pod
