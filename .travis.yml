@@ -250,9 +250,9 @@ matrix:
         - sudo multipass mount $HOME node1:/tmp
         - echo $HOME && ls -lai
         - sudo multipass info node1
-        - sudo multipass exec node1 sudo kubectl get pods --all-namespaces # verify Traefik installed by default
-        # - sudo multipass exec node1 bash /tmp/deploy-istio.sh
-        - sudo multipass exec node1 -- sudo sh -c "curl -s -L https://git.io/getLatestIstio | ISTIO_VERSION=1.0.0 sh -"
+        - sudo multipass exec node1 -- sudo sh -c "kubectl get pods --all-namespaces" # verify Traefik installed by default
+        - sudo multipass exec node1 -- sudo sh -c "./deploy-istio.sh"
+        # - sudo multipass exec node1 -- sudo sh -c "curl -s -L https://git.io/getLatestIstio | ISTIO_VERSION=1.0.0 sh -"
       after_success:
         - deactivate
 
