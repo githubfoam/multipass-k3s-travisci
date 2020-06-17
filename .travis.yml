@@ -128,6 +128,67 @@ matrix:
   fast_finish: true
   include:
 
+    - name: "fio docker multipass k3s openesb Python 3.7 on bionic amd64" #OK
+      os: linux
+      dist: bionic
+      arch: amd64
+      addons:
+        snaps:
+          - name: multipass
+            confinement: classic # or devmode
+            channel: latest/stable # will be passed to --channel flag
+          # - name: kubectl
+          #   confinement: classic # or devmode
+          #   channel: latest/stable # will be passed to --channel flag
+      language: python
+      python: 3.7
+      before_install:
+        - pip3 install virtualenv
+        - virtualenv -p $(which python3) ~venvpy3
+        - source ~venvpy3/bin/activate
+      <<: *fleet_install_tasks
+      <<: *fleet_script_tasks
+      # <<: *fleet_script_ubuntu_homebrew_tasks
+      script:
+        # - cat $HOME/.ssh/id_rsa.pub
+        - 'sudo multipass launch --name node1' #must be named as node1
+        - sudo multipass exec node1 -- sudo sh -c "curl -sfL https://get.k3s.io | sh -"
+        - TOKEN=`sudo multipass exec node1 -- sudo cat /var/lib/rancher/k3s/server/node-token`
+        - echo $TOKEN
+        - IP=`sudo multipass list --format csv | grep "^node1" | cut -d, -f3`
+        - echo $IP
+        - COUNT=3 &&  echo $COUNT
+        - |
+          for i in `seq 2 $COUNT`
+          do
+              sudo multipass launch --name node$i | tee /dev/null
+              sudo multipass exec node$i -- sudo sh -c "curl -sfL https://get.k3s.io | K3S_URL=https://$IP:6443 K3S_TOKEN=$TOKEN sh -"
+          done
+        - sleep 10
+        - sudo multipass exec node1 sudo kubectl get nodes
+        - sudo multipass mount $HOME node1
+        - sudo multipass mount $HOME node1:/tmp
+        - echo $HOME && ls -lai
+        - sudo multipass info node1
+        - sudo multipass exec node1 -- sudo sh -c "kubectl get pods --all-namespaces" # verify Traefik installed by default
+        - sudo multipass exec node1 -- sudo sh -c "kubectl get pods -n kube-system" # verify Traefik installed by default
+        - sudo multipass exec node1 -- sudo sh -c "kubectl get nodes" # verify Traefik installed by default
+        - echo "=============================openEBS============================================================="
+        - echo $HOME && ls -lai
+        - sudo multipass transfer deploy-openesb.sh node1:deploy-openesb.sh
+        - sudo multipass exec node1 -- sudo ls -lai
+        - sudo multipass exec node1 -- sudo bash deploy-openesb.sh
+        # - sudo multipass exec node1 -- sudo sh -c "./deploy-openesb.sh"
+        # - sudo multipass exec node1 -- sudo sh -c "kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml"
+        - echo "=============================openEBS============================================================="
+        - sudo docker build -t githubfoam:fio . --file Dockerfile.alpine
+        - sudo docker image ls
+        - sudo docker run githubfoam/fio /jobs/rand-read.fio
+
+      after_success:
+        - sudo multipass purge #purge to remove all deleted instances completely
+        - deactivate
+
     - name: "multipass k3s openesb Python 3.7 on bionic amd64" #OK
       os: linux
       dist: bionic
