@@ -181,11 +181,18 @@ matrix:
         # - sudo multipass exec node1 -- sudo sh -c "./deploy-openesb.sh"
         # - sudo multipass exec node1 -- sudo sh -c "kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml"
         - echo "=============================openEBS============================================================="
-        - sudo docker build -t githubfoam:fio . --file Dockerfile.alpine
+        - echo "=============================docker fio============================================================="
+        # - sudo docker build -t dockerfoam:fio . --file Dockerfile.alpine
+        - sudo make build-image
         - sudo docker image ls
-        - sudo docker run githubfoam/fio /jobs/rand-read.fio
-
+        # - sudo docker run dockerfoam/fio /jobs/rand-read.fio
+        - echo "=============================docker fio============================================================="
       after_success:
+        - |
+            if [[ "$TRAVIS_BRANCH" == "dev" ]]; then
+              sudo docker login -u $DOCKER_USERNAME -p $DOCKER_TOKEN ;
+              make push-image ;
+            fi
         - sudo multipass purge #purge to remove all deleted instances completely
         - deactivate
 
