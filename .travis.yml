@@ -245,7 +245,7 @@ matrix:
         - echo $HOME && ls -lai
         # - sudo multipass transfer deploy-openesb.sh node1:deploy-openesb.sh
         - sudo multipass transfer app/deploy-openesb.sh node1:deploy-openesb.sh
-        - sudo multipass transfer Makefile node1:deploy-openesb.sh
+        - sudo multipass transfer Makefile node1:Makefile
         - sudo multipass exec node1 -- sudo ls -lai
         # - sudo multipass exec node1 -- sudo bash deploy-openesb.sh
         - sudo multipass exec node1 -- sudo make deploy-openesb
