@@ -7,7 +7,7 @@ echo "=============================openEBS======================================
 # multipass transfer deploy-openesb.sh node1:deploy-openesb.sh
 multipass exec node1 -- sudo mkdir app
 multipass exec node1 -- sudo ls -lai
-multipass transfer app/deploy-openesb.sh node1:app/deploy-openesb.sh
+multipass transfer app/multipass-openesb.sh node1:app/multipass-openesb.sh
 # multipass transfer app/deploy-openesb.sh node1:deploy-openesb.sh
 multipass transfer Makefile node1:Makefile
 multipass exec node1 -- sudo ls -lai
