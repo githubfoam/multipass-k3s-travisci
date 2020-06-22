@@ -116,12 +116,12 @@ fleet_script_ubuntu_homebrew_tasks : &fleet_script_ubuntu_homebrew_tasks
         - brew install hello
         # Install Homebrew
 
-fleet_script_tasks : &fleet_script_tasks
-      script:
-        - python --version
-fleet_install_tasks : &fleet_install_tasks
-      install:
-        - pip install -r requirements.txt
+# fleet_script_tasks : &fleet_script_tasks
+#       script:
+#         - python --version
+# fleet_install_tasks : &fleet_install_tasks
+#       install:
+#         - pip install -r requirements.txt
 
 
 matrix:
@@ -196,7 +196,7 @@ matrix:
     #     - sudo multipass purge #purge to remove all deleted instances completely
     #     - deactivate
 
-    - name: "openesb multipass k3s Python 3.7 on bionic amd64" #OK
+    - name: "openesb w snapped multipass k3s Python 3.7 on bionic amd64" #OK
       os: linux
       dist: bionic
       arch: amd64
@@ -214,8 +214,9 @@ matrix:
         - pip3 install virtualenv
         - virtualenv -p $(which python3) ~venvpy3
         - source ~venvpy3/bin/activate
-      <<: *fleet_install_tasks
-      <<: *fleet_script_tasks
+        - pip install -r requirements.txt
+      # <<: *fleet_install_tasks
+      # <<: *fleet_script_tasks
       # <<: *fleet_script_ubuntu_homebrew_tasks
       script:
         # - cat $HOME/.ssh/id_rsa.pub
