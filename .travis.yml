@@ -116,14 +116,6 @@ fleet_script_ubuntu_homebrew_tasks : &fleet_script_ubuntu_homebrew_tasks
         - brew install hello
         # Install Homebrew
 
-# fleet_script_tasks : &fleet_script_tasks
-#       script:
-#         - python --version
-# fleet_install_tasks : &fleet_install_tasks
-#       install:
-#         - pip install -r requirements.txt
-
-
 matrix:
   fast_finish: true
   include:
@@ -217,7 +209,7 @@ matrix:
         - pip install -r requirements.txt
       script:
         # - cat $HOME/.ssh/id_rsa.pub
-        - make multipass
+        - make deploy-multipass
       after_success:
         - deactivate
 
