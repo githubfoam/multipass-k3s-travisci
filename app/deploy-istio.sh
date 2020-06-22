@@ -1,57 +1,32 @@
 #!/bin/bash
-#https://istio.io/docs/setup/platform-setup/kind/
-#https://kind.sigs.k8s.io/docs/user/quick-start/
-#https://istio.io/docs/setup/getting-started/
-
-echo "=============================openEBS============================================================="
-kind create cluster --name openesb-testing
-kubectl config use-context kind-openesb-testing
-kubectl cluster-info
-kubectl get pods --all-namespaces;
-kubectl get pods -n default;
-kubectl get pod -o wide #The IP column will contain the internal cluster IP address for each pod.
-kubectl get service --all-namespaces # find a Service IP,list all services in all namespaces
-kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml #install OpenEBS
-kubectl get service --all-namespaces # find a Service IP,list all services in all namespaces-
-kubectl get pods -n openebs -l openebs.io/component-name=openebs-localpv-provisioner #Observe localhost provisioner pod
-kubectl get sc #Check the storage Class
-echo echo "Waiting for openebs-localpv-provisioner component to be ready ..."
-for i in {1..60}; do # Timeout after 5 minutes, 150x5=300 secs
-      if kubectl get pods --namespace=openebs -l openebs.io/component-name=openebs-localpv-provisioner | grep Running ; then
-        break
-      fi
-      sleep 5
-done
-echo echo "Waiting for maya-apiserver component to be ready ..."
-for i in {1..60}; do # Timeout after 5 minutes, 150x5=300 secs
-      if kubectl get pods --namespace=openebs -l openebs.io/component-name=maya-apiserver | grep Running ; then
-        break
-      fi
-      sleep 5
-done
-echo echo "Waiting for openebs-ndm component to be ready ..."
-for i in {1..60}; do # Timeout after 5 minutes, 150x5=300 secs
-      if kubectl get pods --namespace=openebs -l openebs.io/component-name=openebs-ndm | grep Running ; then
-        break
-      fi
-      sleep 5
-done
-echo echo "Waiting for openebs-ndm-operator component to be ready ..."
-for i in {1..60}; do # Timeout after 5 minutes, 150x5=300 secs
-      if kubectl get pods --namespace=openebs -l openebs.io/component-name=openebs-ndm-operator | grep Running ; then
-        break
-      fi
-      sleep 5
-done
-echo "Waiting for openesb to be ready ..."
-  for i in {1..60}; do # Timeout after 2 minutes, 60x2=300 secs
-      if kubectl get pods --namespace=openebs | grep Running ; then
-        break
-      fi
-      sleep 5
-done
-kubectl get pods --all-namespaces
-kubectl get pods --namespace=openebs
-kubectl get pod -n default -o wide  --all-namespaces
-kind delete cluster --name openesb-testing
-echo "=============================openEBS============================================================="
+# cd /root/
+# launch.sh>&2
+VERSION="1.6.2"
+if [[ ! -d "/root/istio-1.0.0" ]]; then
+  echo "Downloading Istio... this may take a couple of moments">&2
+  #curl -s -L https://git.io/getLatestIstio | ISTIO_VERSION=1.0.0 sh -
+  curl -s -L https://git.io/getLatestIstio | ISTIO_VERSION=$VERSION sh -
+  echo "Download completed.">&2
+else
+  echo "Istio already exists">&2
+fi
+#export PATH="$PATH:/root/istio-1.0.0/bin";
+#cd /root/istio-1.0.0
+# kubectl apply -f install/kubernetes/helm/istio/templates/crds.yaml -n istio-system
+# kubectl apply -f install/kubernetes/istio-demo-auth.yaml
+# kubectl apply -f /root/katacoda.yaml
+# kubectl apply -f <(istioctl kube-inject -f samples/bookinfo/platform/kube/bookinfo.yaml)
+# kubectl apply -f samples/bookinfo/networking/bookinfo-gateway.yaml
+# kubectl apply -f samples/bookinfo/networking/destination-rule-all-mtls.yaml
+cd istio-$VERSION
+export PATH=$PWD/bin:$PATH;
+#use the demo configuration profile. It’s selected to have a good set of defaults for testing,
+#there are other profiles for production or performance testing.
+istioctl install --set profile=demo
+kubectl label namespace default istio-injection=enabled
+kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yamls
+kubectl get services
+kubectl get pods
+#kubectl exec -it $(kubectl get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}') -c ratings -- curl productpage:9080/productpage | grep -o "<title>.*</title>"
+echo $(kubectl exec -it $(kubectl get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}') -c ratings -- curl productpage:9080/productpage | grep -o "<title>.*</title>")
+kubectl apply -f samples/bookinfo/networking/bookinfo-gateway.yaml
