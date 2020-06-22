@@ -245,10 +245,12 @@ matrix:
         - echo "=============================openEBS============================================================="
         - echo $HOME && ls -lai
         # - sudo multipass transfer deploy-openesb.sh node1:deploy-openesb.sh
-        - sudo multipass transfer app/deploy-openesb.sh node1:deploy-openesb.sh
+        - sudo multipass exec node1 -- sudo mkdir app
+        - sudo multipass transfer app/deploy-openesb.sh node1:app/deploy-openesb.sh
+        # - sudo multipass transfer app/deploy-openesb.sh node1:deploy-openesb.sh
         - sudo multipass transfer Makefile node1:Makefile
         # - sudo multipass exec node1 -- sudo ls -lai
-        - sudo multipass exec node1 -- sudo apt-get install -qqy build-essential
+        - sudo multipass exec node1 -- sudo apt-get install -qqy build-essential #required 4 Makefile
         # - sudo multipass exec node1 -- sudo bash deploy-openesb.sh
         - sudo multipass exec node1 -- sudo ls -lai app
         - sudo multipass exec node1 -- sudo ls -lai app/deploy-openesb.sh #app/deploy-openesb.sh: No such file or directory
