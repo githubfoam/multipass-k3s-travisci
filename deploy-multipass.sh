@@ -19,9 +19,9 @@ multipass mount $HOME node1
 multipass mount $HOME node1:/tmp
 echo $HOME && ls -lai
 multipass info node1
-multipass exec node1 -sudo sh -c "kubectl get pods --all-namespaces" # verify Traefik installed by default
-multipass exec node1 -sudo sh -c "kubectl get pods -n kube-system" # verify Traefik installed by default
-multipass exec node1 -sudo sh -c "kubectl get nodes" # verify Traefik installed by default
+multipass exec node1 -- sudo sh -c "kubectl get pods --all-namespaces" # verify Traefik installed by default
+multipass exec node1 -- sudo sh -c "kubectl get pods -n kube-system" # verify Traefik installed by default
+multipass exec node1 -- sudo sh -c "kubectl get nodes" # verify Traefik installed by default
 
 # echo "=============================openEBS============================================================="
 # echo $HOME && ls -lai
