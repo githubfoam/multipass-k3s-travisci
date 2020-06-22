@@ -6,12 +6,13 @@ echo "=============================openEBS======================================
 # echo $HOME && ls -lai
 # multipass transfer deploy-openesb.sh node1:deploy-openesb.sh
 multipass exec node1 -- sudo mkdir app
-multipass exec node1 -- sudo ls -lai
+multipass exec node1 -- sudo chown ubuntu:ubuntu app #transfer failed: [sftp push] open failed: 'SFTP server: Permission denied'
 multipass transfer app/multipass-openesb.sh node1:app/multipass-openesb.sh
 # multipass transfer app/deploy-openesb.sh node1:deploy-openesb.sh
 multipass transfer Makefile node1:Makefile
-multipass exec node1 -- sudo ls -lai
-multipass exec node1 -- sudo apt-get install -qqy build-essential #required 4 Makefile
+multipass exec node1 -- sudo ls -lai app && ls -lai
+# multipass exec node1 -- sudo apt-get install -qqy build-essential #required 4 Makefile
+
 # multipass exec node1 -sudo bash deploy-openesb.sh
 # multipass exec node1 -sudo ls -lai app
 # multipass exec node1 -sudo ls -lai app/deploy-openesb.sh #app/deploy-openesb.sh: No such file or directory

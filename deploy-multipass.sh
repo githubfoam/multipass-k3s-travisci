@@ -19,9 +19,11 @@ multipass mount $HOME node1
 multipass mount $HOME node1:/tmp
 echo $HOME && ls -lai
 multipass info node1
-multipass exec node1 -- sudo sh -c "kubectl get pods --all-namespaces" # verify Traefik installed by default
-multipass exec node1 -- sudo sh -c "kubectl get pods -n kube-system" # verify Traefik installed by default
-multipass exec node1 -- sudo sh -c "kubectl get nodes" # verify Traefik installed by default
+
+#kubectl: not found
+# multipass exec node1 -- sudo sh -c "kubectl get pods --all-namespaces" # verify Traefik installed by default
+# multipass exec node1 -- sudo sh -c "kubectl get pods -n kube-system" # verify Traefik installed by default
+# multipass exec node1 -- sudo sh -c "kubectl get nodes" # verify Traefik installed by default
 
 # echo "=============================openEBS============================================================="
 # echo $HOME && ls -lai
@@ -29,7 +31,7 @@ multipass exec node1 -- sudo sh -c "kubectl get nodes" # verify Traefik installe
 # multipass exec node1 -sudo mkdir app
 # multipass transfer app/deploy-openesb.sh node1:app/deploy-openesb.sh
 # multipass transfer app/deploy-openesb.sh node1:deploy-openesb.sh
-multipass transfer Makefile node1:Makefile
+# multipass transfer Makefile node1:Makefile
 # multipass exec node1 -sudo ls -lai
 # multipass exec node1 -sudo apt-get install -qqy build-essential #required 4 Makefile
 # # multipass exec node1 -sudo bash deploy-openesb.sh
