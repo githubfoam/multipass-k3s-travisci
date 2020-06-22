@@ -3,8 +3,8 @@ APP:="app/deploy-openesb.sh"
 
 deploy-multipass:
 	bash deploy-multipass.sh
-deploy-openesb:
-	bash app/deploy-openesb.sh
+multipass-openesb:
+	bash app/multipass-openesb.sh
 deploy-istio:
 	bash app/deploy-istio.sh
 push-image:

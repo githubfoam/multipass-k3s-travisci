@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo "=============================Multipass============================================================="
 multipass launch --name node1 #must be named as node1
 multipass exec node1 -sudo sh -c "curl -sfL https://get.k3s.io | sh -"
 TOKEN=`multipass exec node1 -sudo cat /var/lib/rancher/k3s/server/node-token`
@@ -24,12 +25,12 @@ multipass exec node1 -sudo sh -c "kubectl get nodes" # verify Traefik installed 
 
 # echo "=============================openEBS============================================================="
 # echo $HOME && ls -lai
-# # multipass transfer deploy-openesb.sh node1:deploy-openesb.sh
+# multipass transfer deploy-openesb.sh node1:deploy-openesb.sh
 # multipass exec node1 -sudo mkdir app
 # multipass transfer app/deploy-openesb.sh node1:app/deploy-openesb.sh
-# # multipass transfer app/deploy-openesb.sh node1:deploy-openesb.sh
-# multipass transfer Makefile node1:Makefile
-# # multipass exec node1 -sudo ls -lai
+# multipass transfer app/deploy-openesb.sh node1:deploy-openesb.sh
+multipass transfer Makefile node1:Makefile
+# multipass exec node1 -sudo ls -lai
 # multipass exec node1 -sudo apt-get install -qqy build-essential #required 4 Makefile
 # # multipass exec node1 -sudo bash deploy-openesb.sh
 # multipass exec node1 -sudo ls -lai app
@@ -41,7 +42,7 @@ multipass exec node1 -sudo sh -c "kubectl get nodes" # verify Traefik installed 
 
 # multipass exec node1 -sudo sh -c "./deploy-openesb.sh"
 # multipass exec node1 -sudo sh -c "kubectl apply -f https://openebs.github.io/charts/openebs-operator.yaml"
-echo "=============================openEBS============================================================="
+# echo "=============================Kubernetes Dashboard============================================================="
 #Deploying the Kubernetes Dashboard
 #Access the cluster from PC remotely
 # cat /etc/rancher/k3s/k3s.yaml
@@ -56,4 +57,6 @@ echo "=============================openEBS======================================
 # apt update && apt install kubectl
 # kubectl get nodes check out  cluster from PC
 #Access the cluster from PC remotely
-multipass purge #purge to remove all deleted instances completely
+
+
+# multipass purge #purge to remove all deleted instances completely
