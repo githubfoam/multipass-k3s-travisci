@@ -26,6 +26,12 @@ echo "=============================microk8s=====================================
 multipass exec node1 -- sudo snap install microk8s --classic
 # multipass exec node1 -- sudo microk8s.status --wait-ready
 multipass exec node1 -- sudo microk8s.enable dns dashboard storage # Enable common services
+multipass exec node1 -- sudo microk8s kubectl get nodes
+multipass exec node1 -- sudo microk8s kubectl get services
+multipass exec node1 -- sudo microk8s.kubectl config current-context
+multipass exec node1 -- sudo microk8s.kubectl config get-clusters
+multipass exec node1 -- sudo microk8s.kubectl config get-contexts
+multipass exec node1 -- sudo microk8s.kubectl config view -h
 
 echo "=============================kubeflow============================================================="
 multipass exec node1 -- sudo microk8s.enable kubeflow # Enable Kubeflow
