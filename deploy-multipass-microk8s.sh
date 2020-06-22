@@ -24,7 +24,7 @@ echo "=============================microk8s=====================================
 
 # https://www.kubeflow.org/docs/started/workstation/getting-started-multipass/
 multipass exec node1 -- sudo snap install microk8s --classic
-multipass exec node1 -- sudo microk8s.status --wait-ready
+# multipass exec node1 -- sudo microk8s.status --wait-ready
 multipass exec node1 -- sudo microk8s.enable dns dashboard storage # Enable common services
 
 echo "=============================kubeflow============================================================="
