@@ -30,7 +30,7 @@ matrix:
         - source ~venvpy3/bin/activate
         - pip install -r requirements.txt
       script:
-        - sudo make deploy-multipass
+        - sudo make deploy-multipass-microk8s
         # - sudo make multipass-openesb
       after_success:
         - deactivate

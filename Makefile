@@ -1,10 +1,10 @@
 IMAGE := alpine/fio
 APP:="app/deploy-openesb.sh"
 
-deploy-multipass:
+deploy-multipass-microk8s:
 	bash deploy-multipass-microk8s.sh
 deploy-multipass:
-	bash deploy-multipass-microk8s.sh
+	bash deploy-multipass.sh
 multipass-openesb:
 	bash app/multipass-openesb.sh
 deploy-istio:

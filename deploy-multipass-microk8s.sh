@@ -25,6 +25,14 @@ echo "=============================microk8s=====================================
 # https://www.kubeflow.org/docs/started/workstation/getting-started-multipass/
 multipass exec node1 -- sudo snap install microk8s --classic
 # multipass exec node1 -- sudo microk8s.status --wait-ready
+echo "Waiting for Kubernetes to be ready ..."
+for i in {1..150}; do # Timeout after 5 minutes, 150x2=300 secs
+    if microk8s kubectl get pods --namespace=kube-system | grep Running ; then
+      break
+    fi
+    sleep 2
+done
+
 multipass exec node1 -- sudo microk8s.enable dns dashboard storage # Enable common services
 multipass exec node1 -- sudo microk8s kubectl get nodes
 multipass exec node1 -- sudo microk8s kubectl get services
