@@ -28,8 +28,19 @@ echo "=============================microk8s=====================================
 # https://www.kubeflow.org/docs/started/workstation/getting-started-multipass/
 multipass exec node1 -- sudo snap install microk8s --classic
 multipass exec node1 -- sudo microk8s.status
-multipass exec node1 -- sudo bash /snap/bin/microk8s.status
-# multipass exec node1 -- sudo microk8s.status --wait-ready
+
+multipass exec node1 -- sudo microk8s inspect
+multipass exec node1 -- sudo microk8s.stop
+multipass exec node1 -- sudo microk8s.start
+multipass exec node1 -- sudo microk8s.status
+multipass exec node1 -- sudo kubectl get po -n kube-system
+multipass exec node1 -- sudo kubectl config view
+multipass exec node1 -- sudo  kubectl get namespaces 
+
+#MicroK8s bundles its own version of kubectl for accessing Kubernetes
+
+
+#multipass exec node1 -- sudo microk8s.status --wait-ready
 
 multipass exec node1 -- sudo iptables -P FORWARD ACCEPT
 
@@ -58,6 +69,8 @@ multipass list # if you used Multipass, you can get the IP address of the VM wit
 # Getting started with Jupyter notebooks on Kubeflow
 # https://www.kubeflow.org/docs/notebooks/setup/
 
+
+multipass exec node1 -- sudo snap remove microk8s
 
 COUNT=3 &&  echo $COUNT
 for i in `seq 2 $COUNT`
